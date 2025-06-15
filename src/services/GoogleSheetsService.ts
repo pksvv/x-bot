@@ -249,7 +249,7 @@ export class GoogleSheetsService {
 
       const currentData = this.sheetRowToThread(targetRow);
       const updatedData = { ...currentData, ...updates };
-      const updatedRow = this.threadToSheetRow(updatedData as ThreadData);
+      const updatedRow = await this.threadToSheetRow(updatedData as ThreadData);
 
       // Update row values
       Object.entries(updatedRow).forEach(([key, value]) => {
