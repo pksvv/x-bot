@@ -86,10 +86,6 @@ async function startServer() {
     sheetsSync.start();
     logger.info('Google Sheets sync started');
 
-    // Start monitoring jobs
-    const monitoringJobs = new MonitoringJobs();
-    monitoringJobs.start();
-    logger.info('Monitoring jobs started');
 
 
     // Start server
