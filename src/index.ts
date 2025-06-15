@@ -33,6 +33,7 @@ app.get('/', (req, res) => {
     endpoints: {
       threads: '/api/threads',
       sheets: '/api/sheets',
+      metrics: '/api/metrics',
       health: '/'
     }
   });
