@@ -77,7 +77,14 @@ The application uses JWT-based authentication with optional API key support. On 
 
 #### Creating Your First User Account
 
-Once the server is running, create an admin user account:
+Once the server is running, use the setup script to create your admin account:
+
+```bash
+# Interactive setup script (recommended)
+node setup-auth.js
+```
+
+Or create manually via API:
 
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
@@ -196,6 +203,9 @@ node test-sheets.js
 
 # Test metrics collection system
 node test-metrics.js
+
+# Setup authentication (interactive)
+node setup-auth.js
 ```
 
 ## Usage
