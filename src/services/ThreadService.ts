@@ -57,11 +57,12 @@ export class ThreadService {
 
     return new Promise((resolve, reject) => {
       db.run(
-        `INSERT INTO threads (id, content, scheduled_time, published_time, status) 
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO threads (id, content, tweet_ids, scheduled_time, published_time, status) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [
           thread.id,
           JSON.stringify(thread.content),
+          thread.tweetIds ? JSON.stringify(thread.tweetIds) : null,
           thread.scheduledTime?.toISOString(),
           thread.publishedTime?.toISOString(),
           thread.status
