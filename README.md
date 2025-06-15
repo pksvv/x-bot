@@ -202,21 +202,39 @@ node test-metrics.js
 
 ### API Endpoints
 
-The server runs on `http://localhost:3000` by default.
+The server runs on `http://localhost:3000` by default. All API endpoints (except auth) require authentication.
 
-- `GET /` - Health check
-- `POST /api/threads` - Create new thread
-- `GET /api/threads` - List all threads  
-- `PUT /api/threads/:id` - Update thread
-- `DELETE /api/threads/:id` - Delete thread
-- `POST /api/threads/:id/schedule` - Schedule thread
-- `POST /api/threads/:id/publish` - Publish thread immediately
-- `GET /api/metrics/summary` - Get analytics summary
-- `GET /api/metrics/top-threads` - Get top performing threads
-- `POST /api/metrics/collect` - Collect metrics for all threads
-- `GET /api/sheets/validate` - Test Google Sheets connection
-- `POST /api/sheets/sync-from-db` - Sync database to Google Sheets
-- `POST /api/sheets/sync-to-db` - Sync Google Sheets to database
+#### Authentication Endpoints
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/profile` - Get user profile (authenticated)
+- `POST /api/auth/api-keys` - Create API key (authenticated)
+- `GET /api/auth/api-keys` - List API keys (authenticated)
+- `DELETE /api/auth/api-keys/:id` - Revoke API key (authenticated)
+- `POST /api/auth/logout` - Logout (authenticated)
+
+#### Thread Management (requires authentication)
+- `GET /api/threads` - List all threads (requires `threads:read`)
+- `POST /api/threads` - Create new thread (requires `threads:write`)
+- `GET /api/threads/:id` - Get specific thread (requires `threads:read`)
+- `PUT /api/threads/:id` - Update thread (requires `threads:write`)
+- `DELETE /api/threads/:id` - Delete thread (requires `threads:delete`)
+- `POST /api/threads/:id/schedule` - Schedule thread (requires `threads:schedule`)
+- `POST /api/threads/:id/publish` - Publish thread immediately (requires `threads:publish`)
+
+#### Analytics & Metrics (requires authentication)
+- `GET /api/metrics/summary` - Get analytics summary (requires `metrics:read`)
+- `GET /api/metrics/top-threads` - Get top performing threads (requires `metrics:read`)
+- `POST /api/metrics/collect` - Collect metrics for all threads (requires `metrics:collect`)
+
+#### Google Sheets Integration (requires authentication)
+- `GET /api/sheets/validate` - Test Google Sheets connection (requires `sheets:read`)
+- `POST /api/sheets/sync-from-db` - Sync database to Google Sheets (requires `sheets:sync`)
+- `POST /api/sheets/sync-to-db` - Sync Google Sheets to database (requires `sheets:sync`)
+
+#### Public Endpoints
+- `GET /` - Health check and API information
+- `GET /health` - Server health status
 
 ### Dashboard
 
@@ -235,11 +253,13 @@ The bot automatically checks for scheduled threads every minute and publishes th
 ```
 twitter-thread-bot/
 ├── src/                    # Source code
-│   ├── controllers/        # API route handlers
-│   ├── services/          # Business logic (Twitter, Google Sheets)
+│   ├── controllers/        # API route handlers (Auth, Thread, Metrics, Sheets)
+│   ├── services/          # Business logic (Twitter, Google Sheets, Auth)
 │   ├── types/             # TypeScript definitions
 │   ├── utils/             # Utility functions
-│   ├── middleware/        # Express middleware
+│   ├── middleware/        # Express middleware (auth, rate limiting)
+│   ├── routes/            # API route definitions
+│   ├── config/            # Configuration files (security, database)
 │   └── index.ts           # Main server file
 ├── config/                # Configuration files
 │   └── database.ts        # Database setup
@@ -267,6 +287,14 @@ twitter-thread-bot/
 | `GOOGLE_SHEETS_CLIENT_EMAIL` | Google service account email | No |
 | `GOOGLE_SHEETS_PRIVATE_KEY` | Google service account private key | No |
 | `GOOGLE_SHEETS_SPREADSHEET_ID` | Google Sheets spreadsheet ID | No |
+| `JWT_SECRET` | Secret key for JWT token signing | Yes |
+| `SESSION_SECRET` | Secret key for session management | No |
+| `GENERAL_RATE_LIMIT_WINDOW_MS` | General rate limit window (milliseconds) | No |
+| `GENERAL_RATE_LIMIT_MAX` | General rate limit max requests | No |
+| `AUTH_RATE_LIMIT_WINDOW_MS` | Auth rate limit window (milliseconds) | No |
+| `AUTH_RATE_LIMIT_MAX` | Auth rate limit max requests | No |
+| `API_RATE_LIMIT_WINDOW_MS` | API rate limit window (milliseconds) | No |
+| `API_RATE_LIMIT_MAX` | API rate limit max requests | No |
 
 ## Troubleshooting
 
@@ -284,6 +312,16 @@ twitter-thread-bot/
 3. **Dashboard Not Loading**
    - Make sure you're running `npm run dashboard` in a separate terminal
    - Check that port 3001 is available
+
+4. **Authentication Issues**
+   - Ensure `JWT_SECRET` is set in your `.env` file
+   - Check that the user account exists and credentials are correct
+   - Verify API key permissions match the required endpoint permissions
+
+5. **Rate Limiting**
+   - If you receive "Too many requests" errors, wait for the rate limit window to reset
+   - Adjust rate limiting settings in `.env` if needed
+   - Use API keys for higher rate limits than general endpoints
 
 ### Logs
 
