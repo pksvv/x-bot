@@ -208,7 +208,7 @@ export class MetricsService {
     console.log(`Found ${recentThreads.length} threads published in the last 7 days`);
 
     for (const thread of recentThreads) {
-      if (thread.tweetIds && thread.tweetIds.length > 0) {
+      if (thread.tweetIds && thread.tweetIds.length > 0 && thread.id) {
         await this.collectMetricsForThread(thread.id);
         await this.delay(2000); // 2 second delay between requests
       }
