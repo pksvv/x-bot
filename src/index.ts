@@ -7,6 +7,7 @@ import { initializeDatabase } from '../config/database';
 import threadRoutes from './routes/threadRoutes';
 import sheetsRoutes from './routes/sheetsRoutes';
 import { ThreadScheduler } from '../jobs/scheduler';
+import { SheetsSync } from '../jobs/sheetsSync';
 
 dotenv.config();
 
