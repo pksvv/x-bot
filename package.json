@@ -12,9 +12,9 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
-    "dashboard": "next dev dashboard",
-    "build:dashboard": "next build dashboard",
-    "start:dashboard": "next start dashboard"
+    "dashboard": "cd dashboard && npm run dev",
+    "build:dashboard": "cd dashboard && npm run build",
+    "start:dashboard": "cd dashboard && npm run start"
   },
   "keywords": [
     "twitter",
