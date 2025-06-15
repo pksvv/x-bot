@@ -10,7 +10,8 @@ A comprehensive Twitter thread automation bot with analytics dashboard, Google S
 - ⏰ **Scheduled Posting** - Cron-based thread scheduling
 - 📈 **Metrics Collection** - Automatic Twitter analytics collection
 - 💾 **SQLite Database** - Store threads and metrics
-- 🔒 **Secure Configuration** - Environment-based API key management
+- 🔒 **Authentication & Security** - JWT tokens, API keys, role-based access control
+- 🛡️ **Rate Limiting** - Configurable rate limits for different endpoints
 
 ## Prerequisites
 
@@ -52,11 +53,91 @@ TWITTER_BEARER_TOKEN=your_actual_bearer_token
 GOOGLE_SHEETS_CLIENT_EMAIL=your_service_account_email@your-project.iam.gserviceaccount.com
 GOOGLE_SHEETS_PRIVATE_KEY=your_google_sheets_private_key
 GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id
+
+# Authentication & Security Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-in-production-please
+SESSION_SECRET=your-session-secret-key
+
+# Rate Limiting Configuration (Optional - defaults provided)
+GENERAL_RATE_LIMIT_WINDOW_MS=900000
+GENERAL_RATE_LIMIT_MAX=100
+AUTH_RATE_LIMIT_WINDOW_MS=900000
+AUTH_RATE_LIMIT_MAX=5
+API_RATE_LIMIT_WINDOW_MS=60000
+API_RATE_LIMIT_MAX=60
 ```
 
 ### 3. Database Setup
 
 The SQLite database will be created automatically when you first run the application.
+
+### 4. Authentication Setup
+
+The application uses JWT-based authentication with optional API key support. On first run, you'll need to create a user account.
+
+#### Creating Your First User Account
+
+Once the server is running, create an admin user account:
+
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "your-secure-password-here"
+  }'
+```
+
+#### Authentication Methods
+
+The API supports two authentication methods:
+
+1. **JWT Tokens** (recommended for web applications)
+   - Login to get a JWT token
+   - Include in requests: `Authorization: Bearer <token>`
+
+2. **API Keys** (recommended for programmatic access)
+   - Create API keys with specific permissions
+   - Include in requests: `X-API-Key: <api-key>`
+
+#### Creating API Keys
+
+After logging in, create API keys for programmatic access:
+
+```bash
+# Login first to get a token
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "your-secure-password-here"
+  }'
+
+# Use the token to create an API key
+curl -X POST http://localhost:3000/api/auth/api-keys \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -d '{
+    "keyName": "My Bot Key",
+    "permissions": ["threads:read", "threads:write", "threads:publish", "metrics:read"]
+  }'
+```
+
+#### Permission System
+
+The application uses a granular permission system:
+
+- `threads:read` - View threads
+- `threads:write` - Create/edit threads  
+- `threads:delete` - Delete threads
+- `threads:publish` - Publish threads
+- `threads:schedule` - Schedule threads
+- `metrics:read` - View analytics
+- `metrics:collect` - Collect metrics
+- `sheets:read` - View Google Sheets data
+- `sheets:sync` - Sync with Google Sheets
+- `*` - All permissions (admin only)
 
 ## Running the Application
 
