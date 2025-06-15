@@ -10,7 +10,6 @@ import authRoutes from './routes/auth';
 import monitoringRoutes from './routes/monitoring';
 import { ThreadScheduler } from '../jobs/scheduler';
 import { SheetsSync } from '../jobs/sheetsSync';
-import { MonitoringJobs } from './jobs/monitoringJobs';
 import { generalRateLimit } from './middleware/auth';
 import { requestLogger, errorLogger, performanceLogger, correlationIdMiddleware } from './middleware/logging';
 import { errorHandler, notFoundHandler } from './middleware/simpleErrorHandler';
