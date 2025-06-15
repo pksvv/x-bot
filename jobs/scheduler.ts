@@ -6,10 +6,12 @@ import { MetricsService } from '../src/services/MetricsService';
 export class ThreadScheduler {
   private twitterService: TwitterService;
   private threadService: ThreadService;
+  private metricsService: MetricsService;
 
   constructor() {
     this.twitterService = new TwitterService();
     this.threadService = new ThreadService();
+    this.metricsService = new MetricsService();
   }
 
   start() {
@@ -18,8 +20,8 @@ export class ThreadScheduler {
       await this.processScheduledThreads();
     });
 
-    // Collect metrics every hour
-    cron.schedule('0 * * * *', async () => {
+    // Collect metrics every 2 hours
+    cron.schedule('0 */2 * * *', async () => {
       await this.collectMetrics();
     });
 
@@ -61,7 +63,8 @@ export class ThreadScheduler {
       // Update thread status to published
       await this.threadService.updateThread(thread.id, {
         status: 'published',
-        publishedTime: new Date()
+        publishedTime: new Date(),
+        tweetIds: tweetIds
       });
 
       console.log(`✅ Thread ${thread.id} published successfully with ${tweetIds.length} tweets`);
@@ -73,27 +76,11 @@ export class ThreadScheduler {
 
   private async collectMetrics() {
     try {
-      console.log('📊 Collecting thread metrics...');
-      
-      // Get all published threads that need metrics update
-      const publishedThreads = await this.threadService.getAllThreads();
-      const threadsToUpdate = publishedThreads.filter(
-        thread => thread.status === 'published' && thread.publishedTime
-      );
-
-      for (const thread of threadsToUpdate) {
-        try {
-          // This would need to be implemented with actual tweet IDs
-          // For now, we'll skip actual metrics collection
-          console.log(`📈 Would collect metrics for thread: ${thread.id}`);
-        } catch (error) {
-          console.error(`Failed to collect metrics for thread ${thread.id}:`, error);
-        }
-      }
-      
-      console.log(`📊 Metrics collection completed for ${threadsToUpdate.length} threads`);
+      console.log('📊 Starting scheduled metrics collection...');
+      await this.metricsService.scheduleMetricsCollection();
+      console.log('✅ Scheduled metrics collection completed');
     } catch (error) {
-      console.error('Error collecting metrics:', error);
+      console.error('❌ Error in scheduled metrics collection:', error);
     }
   }
 }

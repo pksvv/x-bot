@@ -69,6 +69,12 @@ export class GoogleSheetsService {
           'scheduledTime',
           'status',
           'publishedTime',
+          'views',
+          'likes',
+          'retweets',
+          'replies',
+          'impressions',
+          'engagementRate',
           'notes'
         ]
       });
@@ -77,7 +83,7 @@ export class GoogleSheetsService {
     return sheet;
   }
 
-  private threadToSheetRow(thread: ThreadData): any {
+  private async threadToSheetRow(thread: ThreadData): Promise<any> {
     const row: any = {
       id: thread.id,
       status: thread.status,
@@ -85,6 +91,33 @@ export class GoogleSheetsService {
       publishedTime: thread.publishedTime?.toISOString() || '',
       notes: ''
     };
+
+    // Add metrics if available
+    if (thread.status === 'published') {
+      const metrics = await this.threadService.getThreadMetrics(thread.id);
+      if (metrics) {
+        row.views = metrics.views;
+        row.likes = metrics.likes;
+        row.retweets = metrics.retweets;
+        row.replies = metrics.replies;
+        row.impressions = metrics.impressions;
+        row.engagementRate = Math.round(metrics.engagementRate * 100) / 100; // Round to 2 decimal places
+      } else {
+        row.views = '';
+        row.likes = '';
+        row.retweets = '';
+        row.replies = '';
+        row.impressions = '';
+        row.engagementRate = '';
+      }
+    } else {
+      row.views = '';
+      row.likes = '';
+      row.retweets = '';
+      row.replies = '';
+      row.impressions = '';
+      row.engagementRate = '';
+    }
 
     // Map content array to individual tweet columns
     thread.content.forEach((tweet, index) => {
@@ -138,7 +171,7 @@ export class GoogleSheetsService {
 
       // Add all threads to sheet
       if (threads.length > 0) {
-        const rows = threads.map(thread => this.threadToSheetRow(thread));
+        const rows = await Promise.all(threads.map(thread => this.threadToSheetRow(thread)));
         await sheet.addRows(rows);
       }
 
@@ -195,7 +228,7 @@ export class GoogleSheetsService {
   async addThreadToSheet(thread: ThreadData): Promise<void> {
     try {
       const sheet = await this.getOrCreateWorksheet();
-      const row = this.threadToSheetRow(thread);
+      const row = await this.threadToSheetRow(thread);
       await sheet.addRow(row);
       console.log(`✅ Added thread ${thread.id} to Google Sheets`);
     } catch (error) {
