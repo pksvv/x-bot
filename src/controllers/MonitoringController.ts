@@ -3,6 +3,8 @@ import { HealthService } from '../services/HealthService';
 import { monitoring } from '../utils/metrics';
 import { logger } from '../utils/logger';
 import { AuthRequest } from '../types';
+import { alertService, Alert, AlertRule } from '../services/AlertService';
+import { asyncHandler } from '../middleware/errorHandler';
 
 export class MonitoringController {
   private healthService: HealthService;
