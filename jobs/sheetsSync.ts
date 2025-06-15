@@ -43,4 +43,12 @@ export class SheetsSync {
   async manualSync() {
     return this.performBidirectionalSync();
   }
+
+  stop(): void {
+    console.log('🛑 Stopping Google Sheets sync...');
+    if (this.syncJob) {
+      this.syncJob.stop();
+    }
+    console.log('✅ Google Sheets sync stopped');
+  }
 }

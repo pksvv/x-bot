@@ -20,7 +20,7 @@ export const requestLogger = (req: AuthRequest, res: Response, next: NextFunctio
 
   // Override res.end to capture response details
   const originalEnd = res.end;
-  res.end = function(chunk?: any, encoding?: any) {
+  res.end = function(chunk?: any, encoding?: any): any {
     const responseTime = Date.now() - startTime;
     const { statusCode } = res;
 
@@ -50,7 +50,7 @@ export const requestLogger = (req: AuthRequest, res: Response, next: NextFunctio
     }
 
     // Call original end method
-    originalEnd.call(this, chunk, encoding);
+    return originalEnd.call(this, chunk, encoding);
   };
 
   next();

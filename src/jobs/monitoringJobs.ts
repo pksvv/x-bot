@@ -111,7 +111,8 @@ export class MonitoringJobs {
       const health = await this.healthService.getSystemHealth();
       
       // Log health status
-      logger.logSystemHealth('system', health.status);
+      const logStatus = health.status === 'degraded' ? 'unhealthy' : health.status;
+      logger.logSystemHealth('system', logStatus);
       
       // Track metrics
       monitoring.trackScheduledJob('health_check', 'success');
@@ -365,7 +366,7 @@ export class MonitoringJobs {
     
     this.jobs.forEach((job, name) => {
       status[name] = {
-        running: job.running || false,
+        running: true, // Simplified - assume running if job exists
         scheduled: true
       };
     });

@@ -83,4 +83,15 @@ export class ThreadScheduler {
       console.error('❌ Error in scheduled metrics collection:', error);
     }
   }
+
+  stop(): void {
+    console.log('🛑 Stopping thread scheduler...');
+    if (this.publishingJob) {
+      this.publishingJob.stop();
+    }
+    if (this.metricsJob) {
+      this.metricsJob.stop();
+    }
+    console.log('✅ Thread scheduler stopped');
+  }
 }

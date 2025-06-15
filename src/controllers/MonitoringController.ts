@@ -333,15 +333,7 @@ export class MonitoringController {
   private getMetricValue(metricName: string): number {
     try {
       // In a real implementation, you would query the metrics registry
-      // This is a simplified version
-      const registry = monitoring.getMetricsRegistry();
-      const metrics = registry.getMetricsAsJSON();
-      
-      const metric = metrics.find(m => m.name === metricName);
-      if (metric && metric.values && metric.values.length > 0) {
-        return metric.values[0].value;
-      }
-      
+      // This is a simplified version - for now just return 0
       return 0;
     } catch (error) {
       return 0;

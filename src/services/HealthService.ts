@@ -54,8 +54,8 @@ export class HealthService {
         } else {
           const checkNames = ['database', 'twitter_api', 'google_sheets', 'filesystem', 'memory', 'disk'];
           return {
-            name: checkNames[index],
-            status: 'unhealthy',
+            name: checkNames[index] || 'unknown',
+            status: 'unhealthy' as const,
             message: result.reason?.message || 'Health check failed',
             timestamp: new Date().toISOString()
           };
