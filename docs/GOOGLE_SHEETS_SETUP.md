@@ -94,6 +94,7 @@ GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id_from_url
 
 The integration automatically creates a worksheet with these columns:
 
+### Thread Content & Management
 | Column | Description |
 |--------|-------------|
 | id | Unique thread identifier |
@@ -101,7 +102,23 @@ The integration automatically creates a worksheet with these columns:
 | scheduledTime | When to publish (ISO format) |
 | status | Thread status (draft/scheduled/published/failed) |
 | publishedTime | When it was published |
-| notes | Additional notes |
+
+### Performance Metrics (Auto-populated)
+| Column | Description |
+|--------|-------------|
+| views | Total views across all tweets in thread |
+| likes | Total likes across all tweets |
+| retweets | Total retweets |
+| replies | Total replies |
+| impressions | Total impressions |
+| engagementRate | Calculated engagement percentage |
+
+### Additional
+| Column | Description |
+|--------|-------------|
+| notes | Additional notes or comments |
+
+**Note:** Metrics columns are automatically populated when threads are published and metrics are collected. These update every 2 hours automatically or can be manually refreshed via API.
 
 ## Usage
 
@@ -122,6 +139,24 @@ curl -X POST http://localhost:3000/api/sheets/bidirectional-sync
 
 The system automatically syncs every 5 minutes when properly configured.
 
+### Metrics Collection
+
+The system automatically collects Twitter metrics every 2 hours for published threads:
+
+```bash
+# Manual metrics collection for all threads
+curl -X POST http://localhost:3000/api/metrics/collect
+
+# Collect metrics for specific thread
+curl -X POST http://localhost:3000/api/metrics/collect/THREAD_ID
+
+# Get metrics summary
+curl -X GET http://localhost:3000/api/metrics/summary
+
+# Get top performing threads
+curl -X GET http://localhost:3000/api/metrics/top-threads
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -140,10 +175,20 @@ The system automatically syncs every 5 minutes when properly configured.
 
 ### Testing
 
-Run the test script to verify everything is working:
+Run the test scripts to verify everything is working:
 
 ```bash
+# Test Google Sheets integration
 node test-sheets.js
+
+# Test metrics collection system
+node test-metrics.js
+
+# Test complete API functionality  
+node test-api.js
 ```
 
-This will test all Google Sheets functionality and provide detailed feedback.
+These will test all functionality and provide detailed feedback about:
+- Google Sheets connectivity and sync
+- Metrics collection and analytics
+- Complete API functionality
