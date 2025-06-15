@@ -1,9 +1,25 @@
-import { db } from '../../config/database';
-import { TwitterService } from './TwitterService';
-import { GoogleSheetsService } from './GoogleSheetsService';
-import { logger } from '../utils/logger';
-import { monitoring } from '../utils/metrics';
-import { healthLogger } from '../middleware/logging';
+// This file is deprecated - use simpleHealth instead
+// Keeping minimal implementation for backward compatibility
+
+import { simpleHealth } from '../utils/simpleHealth';
+
+export const HealthService = class {
+  async getSystemHealth() {
+    return simpleHealth.getSystemHealth();
+  }
+  
+  async getDetailedSystemInfo() {
+    return simpleHealth.getSystemInfo();
+  }
+  
+  async getMetrics() {
+    return {
+      format: 'simple',
+      data: 'Use GCP native monitoring instead',
+      timestamp: new Date().toISOString()
+    };
+  }
+};
 
 export interface HealthCheck {
   name: string;
