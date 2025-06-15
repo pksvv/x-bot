@@ -3,6 +3,7 @@ import { GoogleSheetsService } from '../src/services/GoogleSheetsService';
 
 export class SheetsSync {
   private sheetsService: GoogleSheetsService;
+  private syncJob: any;
 
   constructor() {
     this.sheetsService = new GoogleSheetsService();
@@ -10,7 +11,7 @@ export class SheetsSync {
 
   start() {
     // Auto-sync with Google Sheets every 5 minutes
-    cron.schedule('*/5 * * * *', async () => {
+    this.syncJob = cron.schedule('*/5 * * * *', async () => {
       await this.performBidirectionalSync();
     });
 

@@ -7,6 +7,8 @@ export class ThreadScheduler {
   private twitterService: TwitterService;
   private threadService: ThreadService;
   private metricsService: MetricsService;
+  private publishingJob: any;
+  private metricsJob: any;
 
   constructor() {
     this.twitterService = new TwitterService();
@@ -16,12 +18,12 @@ export class ThreadScheduler {
 
   start() {
     // Check for scheduled threads every minute
-    cron.schedule('* * * * *', async () => {
+    this.publishingJob = cron.schedule('* * * * *', async () => {
       await this.processScheduledThreads();
     });
 
     // Collect metrics every 2 hours
-    cron.schedule('0 */2 * * *', async () => {
+    this.metricsJob = cron.schedule('0 */2 * * *', async () => {
       await this.collectMetrics();
     });
 
