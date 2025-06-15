@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import { TwitterService } from '../src/services/TwitterService';
 import { ThreadService } from '../src/services/ThreadService';
+import { MetricsService } from '../src/services/MetricsService';
 
 export class ThreadScheduler {
   private twitterService: TwitterService;
