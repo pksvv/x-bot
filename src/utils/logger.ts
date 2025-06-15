@@ -36,6 +36,7 @@ class Logger {
     const environment = process.env.NODE_ENV || 'development';
     const isDevelopment = environment === 'development';
     const isTest = environment === 'test';
+    const isProduction = environment === 'production';
 
     // Base format for all transports
     const baseFormat = winston.format.combine(
