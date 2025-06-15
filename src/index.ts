@@ -14,7 +14,6 @@ import { MonitoringJobs } from './jobs/monitoringJobs';
 import { generalRateLimit } from './middleware/auth';
 import { requestLogger, errorLogger, performanceLogger, correlationIdMiddleware } from './middleware/logging';
 import { errorHandler, notFoundHandler } from './middleware/simpleErrorHandler';
-import { metricsMiddleware } from './utils/metrics';
 import { logger } from './utils/logger';
 
 dotenv.config();
@@ -29,9 +28,8 @@ app.use(cors());
 // Correlation ID middleware (must be first)
 app.use(correlationIdMiddleware);
 
-// Logging and monitoring middleware
+// Logging middleware
 app.use(requestLogger);
-app.use(metricsMiddleware);
 app.use(performanceLogger(1000)); // Log slow requests over 1 second
 
 // Body parsing
@@ -59,7 +57,6 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       threads: '/api/threads',
       sheets: '/api/sheets',
-      metrics: '/api/metrics',
       monitoring: '/monitoring',
       health: '/monitoring/health'
     }
@@ -107,8 +104,7 @@ async function startServer() {
       console.log(`🚀 Twitter Thread Bot is running!`);
       console.log(`📊 API: http://localhost:${PORT}/`);
       console.log(`🔍 Health Check: http://localhost:${PORT}/monitoring/health`);
-      console.log(`📈 Metrics: http://localhost:${PORT}/monitoring/metrics`);
-      console.log(`📋 Logs: ./logs/`);
+      console.log(`📋 Logs: Console (GCP) / ./logs/ (dev)`);
     });
 
     // Graceful shutdown handling
