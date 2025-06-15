@@ -71,6 +71,10 @@ async function startServer() {
     const scheduler = new ThreadScheduler();
     scheduler.start();
 
+    // Start Google Sheets sync
+    const sheetsSync = new SheetsSync();
+    sheetsSync.start();
+
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📊 API Documentation: http://localhost:${PORT}/`);
