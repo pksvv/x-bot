@@ -49,6 +49,7 @@ export class ThreadService {
     const thread: ThreadData = {
       id,
       content: threadData.content || [],
+      tweetIds: threadData.tweetIds,
       scheduledTime: threadData.scheduledTime,
       status: threadData.status || 'draft',
       publishedTime: threadData.publishedTime

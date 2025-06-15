@@ -14,6 +14,7 @@ export interface GoogleSheetsConfig {
 export interface ThreadData {
   id: string;
   content: string[];
+  tweetIds?: string[];
   scheduledTime?: Date;
   publishedTime?: Date;
   status: 'draft' | 'scheduled' | 'published' | 'failed';
