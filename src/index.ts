@@ -115,7 +115,6 @@ async function startServer() {
         // Stop all scheduled jobs
         scheduler.stop();
         sheetsSync.stop();
-        monitoringJobs.stop();
 
         logger.info('Graceful shutdown completed');
         process.exit(0);
