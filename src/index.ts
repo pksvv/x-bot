@@ -12,9 +12,11 @@ import { ThreadScheduler } from '../jobs/scheduler';
 import { SheetsSync } from '../jobs/sheetsSync';
 import { MonitoringJobs } from './jobs/monitoringJobs';
 import { generalRateLimit } from './middleware/auth';
-import { requestLogger, errorLogger, performanceLogger } from './middleware/logging';
+import { requestLogger, errorLogger, performanceLogger, correlationIdMiddleware } from './middleware/logging';
+import { errorHandler, notFoundHandler, setupGlobalErrorHandlers } from './middleware/errorHandler';
 import { metricsMiddleware } from './utils/metrics';
 import { logger } from './utils/logger';
+import { alertService } from './services/AlertService';
 
 dotenv.config();
 
@@ -24,6 +26,9 @@ const PORT = process.env.PORT || 3000;
 // Security and CORS
 app.use(helmet());
 app.use(cors());
+
+// Correlation ID middleware (must be first)
+app.use(correlationIdMiddleware);
 
 // Logging and monitoring middleware
 app.use(requestLogger);
@@ -64,36 +69,8 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use(errorLogger);
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.logError(err, 'Unhandled application error', {
-    method: req.method,
-    url: req.originalUrl,
-    ip: req.ip,
-    userAgent: req.headers['user-agent']
-  });
-  
-  res.status(500).json({ 
-    success: false, 
-    error: 'Internal server error',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  logger.warn('Route not found', {
-    method: req.method,
-    url: req.originalUrl,
-    ip: req.ip,
-    userAgent: req.headers['user-agent']
-  });
-  
-  res.status(404).json({ 
-    success: false, 
-    error: 'Route not found',
-    timestamp: new Date().toISOString()
-  });
-});
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 async function startServer() {
   try {

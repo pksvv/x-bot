@@ -24,4 +24,20 @@ router.get('/analytics/performance', monitoringController.getPerformanceMetrics)
 router.get('/analytics/security', monitoringController.getSecurityMetrics);
 router.get('/analytics/business', monitoringController.getBusinessMetrics);
 
+// Alert management endpoints (admin only)
+router.get('/alerts', monitoringController.getAlerts);
+router.get('/alerts/:id', monitoringController.getAlert);
+router.post('/alerts/:id/acknowledge', monitoringController.acknowledgeAlert);
+router.post('/alerts/:id/resolve', monitoringController.resolveAlert);
+
+// Alert rules management (admin only)
+router.get('/alert-rules', monitoringController.getAlertRules);
+router.post('/alert-rules', monitoringController.createAlertRule);
+router.put('/alert-rules/:id', monitoringController.updateAlertRule);
+router.delete('/alert-rules/:id', monitoringController.deleteAlertRule);
+
+// Manual monitoring triggers (admin only)
+router.post('/health/check', monitoringController.triggerHealthCheck);
+router.post('/alerts/check', monitoringController.triggerAlertChecks);
+
 export default router;
