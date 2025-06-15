@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { initializeDatabase } from '../config/database';
 import threadRoutes from './routes/threadRoutes';
+import sheetsRoutes from './routes/sheetsRoutes';
 import { ThreadScheduler } from '../jobs/scheduler';
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use('/api/threads', threadRoutes);
+app.use('/api/sheets', sheetsRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
