@@ -217,6 +217,7 @@ export class ThreadService {
     return {
       id: row.id,
       content: JSON.parse(row.content),
+      tweetIds: row.tweet_ids ? JSON.parse(row.tweet_ids) : undefined,
       scheduledTime: row.scheduled_time ? new Date(row.scheduled_time) : undefined,
       publishedTime: row.published_time ? new Date(row.published_time) : undefined,
       status: row.status

@@ -132,7 +132,8 @@ export class ThreadController {
       
       await this.threadService.updateThread(id, {
         status: 'published',
-        publishedTime: new Date()
+        publishedTime: new Date(),
+        tweetIds: tweetIds
       });
 
       return res.json({ 
