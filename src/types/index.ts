@@ -45,6 +45,7 @@ export interface User {
 export interface AuthRequest extends Request {
   user?: User;
   apiKey?: ApiKey;
+  correlationId?: string;
 }
 
 export interface UserSession {

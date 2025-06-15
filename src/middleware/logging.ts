@@ -1,6 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 import { AuthRequest } from '../types';
+import { v4 as uuidv4 } from 'uuid';
+
+// Minimal correlation ID middleware for debugging
+export const correlationIdMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  const correlationId = (req.headers['x-correlation-id'] as string) || uuidv4();
+  req.correlationId = correlationId;
+  res.setHeader('x-correlation-id', correlationId);
+  next();
+};
 
 // Request logging middleware
 export const requestLogger = (req: AuthRequest, res: Response, next: NextFunction): void => {

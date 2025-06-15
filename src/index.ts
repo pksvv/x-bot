@@ -76,6 +76,9 @@ async function startServer() {
   try {
     logger.info('Starting Twitter Thread Bot server...');
 
+    // Setup global error handlers
+    setupGlobalErrorHandlers();
+
     // Initialize database
     await initializeDatabase();
     logger.info('Database initialized successfully');
@@ -94,6 +97,10 @@ async function startServer() {
     const monitoringJobs = new MonitoringJobs();
     monitoringJobs.start();
     logger.info('Monitoring jobs started');
+
+    // Start alerting system
+    alertService.startPeriodicChecks();
+    logger.info('Alert service started');
 
     // Start server
     const server = app.listen(PORT, () => {
