@@ -20,7 +20,11 @@
     "typecheck": "tsc --noEmit",
     "dashboard": "cd dashboard && npm run dev",
     "build:dashboard": "cd dashboard && npm run build",
-    "start:dashboard": "cd dashboard && npm run start"
+    "start:dashboard": "cd dashboard && npm run start",
+    "gcp:deploy": "npm run build && gcloud app deploy",
+    "gcp:logs": "gcloud app logs tail -s default",
+    "gcp:browse": "gcloud app browse",
+    "gcp:setup": "gcloud app create --region=us-central1"
   },
   "keywords": [
     "twitter",

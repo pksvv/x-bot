@@ -13,10 +13,9 @@ import { SheetsSync } from '../jobs/sheetsSync';
 import { MonitoringJobs } from './jobs/monitoringJobs';
 import { generalRateLimit } from './middleware/auth';
 import { requestLogger, errorLogger, performanceLogger, correlationIdMiddleware } from './middleware/logging';
-import { errorHandler, notFoundHandler, setupGlobalErrorHandlers } from './middleware/errorHandler';
+import { errorHandler, notFoundHandler } from './middleware/simpleErrorHandler';
 import { metricsMiddleware } from './utils/metrics';
 import { logger } from './utils/logger';
-import { alertService } from './services/AlertService';
 
 dotenv.config();
 
@@ -76,8 +75,6 @@ async function startServer() {
   try {
     logger.info('Starting Twitter Thread Bot server...');
 
-    // Setup global error handlers
-    setupGlobalErrorHandlers();
 
     // Initialize database
     await initializeDatabase();
@@ -98,9 +95,6 @@ async function startServer() {
     monitoringJobs.start();
     logger.info('Monitoring jobs started');
 
-    // Start alerting system
-    alertService.startPeriodicChecks();
-    logger.info('Alert service started');
 
     // Start server
     const server = app.listen(PORT, () => {

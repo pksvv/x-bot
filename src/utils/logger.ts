@@ -71,8 +71,8 @@ class Logger {
       );
     }
 
-    // File transports (disabled in test environment)
-    if (!isTest) {
+    // File transports (disabled in test and production for GCP free tier)
+    if (!isTest && !isProduction) {
       // Error log file (errors only)
       transports.push(
         new DailyRotateFile({
@@ -80,32 +80,19 @@ class Logger {
           datePattern: 'YYYY-MM-DD',
           level: 'error',
           format: baseFormat,
-          maxSize: '20m',
-          maxFiles: '14d',
+          maxSize: '10m',
+          maxFiles: '3d',
           zippedArchive: true
         })
       );
 
-      // Combined log file (all levels)
+      // Combined log file (all levels) - smaller for development
       transports.push(
         new DailyRotateFile({
           filename: path.join(this.logDir, 'combined-%DATE%.log'),
           datePattern: 'YYYY-MM-DD',
           format: baseFormat,
-          maxSize: '20m',
-          maxFiles: '30d',
-          zippedArchive: true
-        })
-      );
-
-      // HTTP access log file
-      transports.push(
-        new DailyRotateFile({
-          filename: path.join(this.logDir, 'access-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          level: 'http',
-          format: baseFormat,
-          maxSize: '20m',
+          maxSize: '10m',
           maxFiles: '7d',
           zippedArchive: true
         })
@@ -117,22 +104,26 @@ class Logger {
       levels: LOG_LEVELS,
       format: baseFormat,
       transports,
-      // Handle uncaught exceptions and rejections
-      exceptionHandlers: !isTest ? [
+      // Handle uncaught exceptions and rejections (console only in production)
+      exceptionHandlers: !isTest && !isProduction ? [
         new DailyRotateFile({
           filename: path.join(this.logDir, 'exceptions-%DATE%.log'),
           datePattern: 'YYYY-MM-DD',
-          maxSize: '20m',
-          maxFiles: '30d'
+          maxSize: '10m',
+          maxFiles: '3d'
         })
+      ] : !isTest ? [
+        new winston.transports.Console()
       ] : [],
-      rejectionHandlers: !isTest ? [
+      rejectionHandlers: !isTest && !isProduction ? [
         new DailyRotateFile({
           filename: path.join(this.logDir, 'rejections-%DATE%.log'),
           datePattern: 'YYYY-MM-DD',
-          maxSize: '20m',
-          maxFiles: '30d'
+          maxSize: '10m',
+          maxFiles: '3d'
         })
+      ] : !isTest ? [
+        new winston.transports.Console()
       ] : []
     });
   }

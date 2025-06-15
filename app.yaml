@@ -1,0 +1,42 @@
+runtime: nodejs20
+
+# Free tier instance (f1-micro equivalent)
+instance_class: F1
+automatic_scaling:
+  min_instances: 0
+  max_instances: 1
+  target_cpu_utilization: 0.6
+
+# Environment variables
+env_variables:
+  NODE_ENV: production
+  PORT: 8080
+
+# Health check configuration for load balancer
+readiness_check:
+  path: "/monitoring/health"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+
+liveness_check:
+  path: "/monitoring/ping"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 4
+  success_threshold: 2
+
+# Skip files to reduce upload time
+skip_files:
+  - ^(.*/)?#.*#$
+  - ^(.*/)?.*~$
+  - ^(.*/)?.*\.pyc$
+  - ^(.*/)?.*/RCS/.*$
+  - ^(.*/)?\..*$
+  - node_modules/
+  - dashboard/
+  - docs/
+  - tests/
+  - logs/
+  - "*.md"
