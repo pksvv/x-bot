@@ -14,14 +14,48 @@ export const db = new sqlite3.Database(dbPath, (err) => {
 export const initializeDatabase = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     const createTables = `
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT DEFAULT 'user',
+        is_active BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS user_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        token TEXT UNIQUE NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS api_keys (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        key_name TEXT NOT NULL,
+        key_hash TEXT NOT NULL,
+        permissions TEXT DEFAULT '[]',
+        is_active BOOLEAN DEFAULT 1,
+        last_used DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
       CREATE TABLE IF NOT EXISTS threads (
         id TEXT PRIMARY KEY,
+        user_id TEXT,
         content TEXT NOT NULL,
         tweet_ids TEXT,
         scheduled_time DATETIME,
         published_time DATETIME,
         status TEXT DEFAULT 'draft',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
       );
 
       CREATE TABLE IF NOT EXISTS metrics (

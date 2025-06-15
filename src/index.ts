@@ -7,8 +7,10 @@ import { initializeDatabase } from '../config/database';
 import threadRoutes from './routes/threadRoutes';
 import sheetsRoutes from './routes/sheetsRoutes';
 import metricsRoutes from './routes/metricsRoutes';
+import authRoutes from './routes/auth';
 import { ThreadScheduler } from '../jobs/scheduler';
 import { SheetsSync } from '../jobs/sheetsSync';
+import { generalRateLimit } from './middleware/auth';
 
 dotenv.config();
 
@@ -20,8 +22,10 @@ app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(generalRateLimit);
 
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/threads', threadRoutes);
 app.use('/api/sheets', sheetsRoutes);
 app.use('/api/metrics', metricsRoutes);
@@ -31,6 +35,7 @@ app.get('/', (req, res) => {
     message: 'Twitter Thread Bot API is running!',
     version: '1.0.0',
     endpoints: {
+      auth: '/api/auth',
       threads: '/api/threads',
       sheets: '/api/sheets',
       metrics: '/api/metrics',

@@ -29,3 +29,47 @@ export interface ThreadMetrics {
   impressions: number;
   engagementRate: number;
 }
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: 'admin' | 'user';
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AuthRequest extends Request {
+  user?: User;
+  apiKey?: ApiKey;
+}
+
+export interface UserSession {
+  id: string;
+  userId: string;
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+export interface ApiKey {
+  id: string;
+  userId: string;
+  keyName: string;
+  permissions: string[];
+  isActive: boolean;
+  lastUsed?: Date;
+  createdAt: Date;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+}
