@@ -106,6 +106,15 @@ node test.js
 
 # Test bot functionality
 node bot.js
+
+# Test complete API functionality
+node test-api.js
+
+# Test Google Sheets integration
+node test-sheets.js
+
+# Test metrics collection system
+node test-metrics.js
 ```
 
 ## Usage
@@ -120,7 +129,13 @@ The server runs on `http://localhost:3000` by default.
 - `PUT /api/threads/:id` - Update thread
 - `DELETE /api/threads/:id` - Delete thread
 - `POST /api/threads/:id/schedule` - Schedule thread
-- `GET /api/metrics` - Get analytics data
+- `POST /api/threads/:id/publish` - Publish thread immediately
+- `GET /api/metrics/summary` - Get analytics summary
+- `GET /api/metrics/top-threads` - Get top performing threads
+- `POST /api/metrics/collect` - Collect metrics for all threads
+- `GET /api/sheets/validate` - Test Google Sheets connection
+- `POST /api/sheets/sync-from-db` - Sync database to Google Sheets
+- `POST /api/sheets/sync-to-db` - Sync Google Sheets to database
 
 ### Dashboard
 
