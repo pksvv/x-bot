@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       threads: '/api/threads',
+      sheets: '/api/sheets',
       health: '/'
     }
   });
