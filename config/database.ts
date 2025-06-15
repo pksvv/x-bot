@@ -17,6 +17,7 @@ export const initializeDatabase = (): Promise<void> => {
       CREATE TABLE IF NOT EXISTS threads (
         id TEXT PRIMARY KEY,
         content TEXT NOT NULL,
+        tweet_ids TEXT,
         scheduled_time DATETIME,
         published_time DATETIME,
         status TEXT DEFAULT 'draft',

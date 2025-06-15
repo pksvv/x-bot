@@ -3,24 +3,6 @@ import { JWT } from 'google-auth-library';
 import { ThreadData } from '../types';
 import { ThreadService } from './ThreadService';
 
-interface SheetRow {
-  id?: string;
-  tweet1?: string;
-  tweet2?: string;
-  tweet3?: string;
-  tweet4?: string;
-  tweet5?: string;
-  tweet6?: string;
-  tweet7?: string;
-  tweet8?: string;
-  tweet9?: string;
-  tweet10?: string;
-  scheduledTime?: string;
-  status?: string;
-  publishedTime?: string;
-  notes?: string;
-}
-
 export class GoogleSheetsService {
   private doc?: GoogleSpreadsheet;
   private threadService: ThreadService;
@@ -95,43 +77,52 @@ export class GoogleSheetsService {
     return sheet;
   }
 
-  private threadToSheetRow(thread: ThreadData): SheetRow {
-    const row: SheetRow = {
+  private threadToSheetRow(thread: ThreadData): any {
+    const row: any = {
       id: thread.id,
       status: thread.status,
-      scheduledTime: thread.scheduledTime?.toISOString(),
-      publishedTime: thread.publishedTime?.toISOString(),
+      scheduledTime: thread.scheduledTime?.toISOString() || '',
+      publishedTime: thread.publishedTime?.toISOString() || '',
+      notes: ''
     };
 
     // Map content array to individual tweet columns
     thread.content.forEach((tweet, index) => {
       if (index < 10) {
-        const tweetKey = `tweet${index + 1}` as keyof SheetRow;
-        (row as any)[tweetKey] = tweet;
+        row[`tweet${index + 1}`] = tweet;
       }
     });
+
+    // Fill empty tweet columns
+    for (let i = thread.content.length + 1; i <= 10; i++) {
+      row[`tweet${i}`] = '';
+    }
 
     return row;
   }
 
-  private sheetRowToThread(row: SheetRow): Partial<ThreadData> {
+  private sheetRowToThread(row: any): Partial<ThreadData> {
     const content: string[] = [];
     
     // Extract tweets from individual columns
     for (let i = 1; i <= 10; i++) {
-      const tweetKey = `tweet${i}` as keyof SheetRow;
-      const tweet = row[tweetKey];
+      const tweet = row.get(`tweet${i}`) || row[`tweet${i}`];
       if (tweet && tweet.trim()) {
         content.push(tweet.trim());
       }
     }
 
+    const id = row.get('id') || row.id;
+    const status = row.get('status') || row.status;
+    const scheduledTime = row.get('scheduledTime') || row.scheduledTime;
+    const publishedTime = row.get('publishedTime') || row.publishedTime;
+
     return {
-      id: row.id,
+      id,
       content,
-      status: row.status as ThreadData['status'] || 'draft',
-      scheduledTime: row.scheduledTime ? new Date(row.scheduledTime) : undefined,
-      publishedTime: row.publishedTime ? new Date(row.publishedTime) : undefined,
+      status: status as ThreadData['status'] || 'draft',
+      scheduledTime: scheduledTime ? new Date(scheduledTime) : undefined,
+      publishedTime: publishedTime ? new Date(publishedTime) : undefined,
     };
   }
 
@@ -146,8 +137,8 @@ export class GoogleSheetsService {
       await sheet.clear('A2:Z');
 
       // Add all threads to sheet
-      const rows = threads.map(thread => this.threadToSheetRow(thread));
-      if (rows.length > 0) {
+      if (threads.length > 0) {
+        const rows = threads.map(thread => this.threadToSheetRow(thread));
         await sheet.addRows(rows);
       }
 
@@ -218,23 +209,23 @@ export class GoogleSheetsService {
       const sheet = await this.getOrCreateWorksheet();
       const rows = await sheet.getRows();
       
-      const rowIndex = rows.findIndex(row => row.get('id') === threadId);
-      if (rowIndex === -1) {
+      const targetRow = rows.find(row => row.get('id') === threadId);
+      if (!targetRow) {
         throw new Error(`Thread ${threadId} not found in Google Sheets`);
       }
 
-      const row = rows[rowIndex];
-      const updatedData = { ...this.sheetRowToThread(row), ...updates };
+      const currentData = this.sheetRowToThread(targetRow);
+      const updatedData = { ...currentData, ...updates };
       const updatedRow = this.threadToSheetRow(updatedData as ThreadData);
 
       // Update row values
       Object.entries(updatedRow).forEach(([key, value]) => {
         if (value !== undefined) {
-          row.set(key, value);
+          targetRow.set(key, value);
         }
       });
 
-      await row.save();
+      await targetRow.save();
       console.log(`✅ Updated thread ${threadId} in Google Sheets`);
     } catch (error) {
       console.error('❌ Error updating thread in Google Sheets:', error);
@@ -247,12 +238,12 @@ export class GoogleSheetsService {
       const sheet = await this.getOrCreateWorksheet();
       const rows = await sheet.getRows();
       
-      const rowIndex = rows.findIndex(row => row.get('id') === threadId);
-      if (rowIndex === -1) {
+      const targetRow = rows.find(row => row.get('id') === threadId);
+      if (!targetRow) {
         throw new Error(`Thread ${threadId} not found in Google Sheets`);
       }
 
-      await rows[rowIndex].delete();
+      await targetRow.delete();
       console.log(`✅ Deleted thread ${threadId} from Google Sheets`);
     } catch (error) {
       console.error('❌ Error deleting thread from Google Sheets:', error);
