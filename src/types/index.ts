@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface TwitterConfig {
   appKey: string;
   appSecret: string;

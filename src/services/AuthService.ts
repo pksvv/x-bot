@@ -55,7 +55,7 @@ export class AuthService {
       db.run(
         `INSERT INTO users (id, username, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
         [userId, username, email, passwordHash, 'user'],
-        function(err) {
+        (err) => {
           if (err) {
             if (err.message.includes('UNIQUE constraint failed')) {
               reject(new Error('Username or email already exists'));
@@ -262,7 +262,7 @@ export class AuthService {
     }
 
     return new Promise((resolve, reject) => {
-      db.get(
+      db.all(
         `SELECT u.*, ak.id as key_id, ak.key_name, ak.key_hash, ak.permissions, ak.is_active as key_active, ak.last_used, ak.created_at as key_created_at
          FROM users u 
          JOIN api_keys ak ON u.id = ak.user_id 

@@ -123,10 +123,15 @@ export const requirePermission = (permission: string) => {
       return;
     }
 
-    // For JWT authentication, check user role
-    if (req.user.role !== 'admin' && req.apiKey && !req.apiKey.permissions.includes(permission)) {
-      res.status(403).json({ success: false, error: `Permission '${permission}' required` });
-      return;
+    // For JWT authentication without API key, check if user has permission
+    // Regular users need specific permissions granted
+    if (!req.apiKey) {
+      // Default permissions for regular users - you might want to store these in the database
+      const defaultPermissions = ['threads:read', 'threads:write', 'threads:schedule', 'metrics:read', 'sheets:read'];
+      if ((req.user.role as string) !== 'admin' && !defaultPermissions.includes(permission)) {
+        res.status(403).json({ success: false, error: `Permission '${permission}' required` });
+        return;
+      }
     }
 
     next();

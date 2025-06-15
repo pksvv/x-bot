@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
+const { body, validationResult } = require('express-validator');
 import { AuthService } from '../services/AuthService';
 import { AuthRequest, LoginCredentials, RegisterData } from '../types';
 
@@ -246,6 +246,13 @@ export class AuthController {
       }
 
       const { keyId } = req.params;
+      if (!keyId) {
+        res.status(400).json({
+          success: false,
+          error: 'Key ID is required'
+        });
+        return;
+      }
       await this.authService.revokeApiKey(keyId, req.user.id);
 
       res.status(200).json({
