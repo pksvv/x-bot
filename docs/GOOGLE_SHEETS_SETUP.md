@@ -1,6 +1,14 @@
 # Google Sheets Integration Setup
 
-This guide will help you set up Google Sheets integration for managing your Twitter threads.
+This guide will help you set up Google Sheets integration for managing your Twitter threads with automatic metrics collection and analytics.
+
+## Features
+
+- 📊 **Thread Management** - Create, edit, and schedule threads directly in Google Sheets
+- 📈 **Automatic Metrics** - Real-time performance data synced to your spreadsheet
+- 🔄 **Bidirectional Sync** - Changes sync between database and Google Sheets
+- ⚡ **Auto-Updates** - Metrics refresh every 2 hours, sheets sync every 5 minutes
+- 🏆 **Performance Tracking** - Engagement rates, views, likes, retweets, replies
 
 ## Prerequisites
 

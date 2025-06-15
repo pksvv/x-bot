@@ -6,8 +6,9 @@ A comprehensive Twitter thread automation bot with analytics dashboard, Google S
 
 - 🐦 **Twitter API Integration** - Post threads automatically
 - 📊 **Analytics Dashboard** - Track thread performance with Chart.js
-- 📋 **Google Sheets Integration** - Manage threads from spreadsheets
+- 📋 **Google Sheets Integration** - Manage threads from spreadsheets with metrics
 - ⏰ **Scheduled Posting** - Cron-based thread scheduling
+- 📈 **Metrics Collection** - Automatic Twitter analytics collection
 - 💾 **SQLite Database** - Store threads and metrics
 - 🔒 **Secure Configuration** - Environment-based API key management
 
