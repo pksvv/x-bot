@@ -89,10 +89,11 @@ export class ThreadService {
     return new Promise((resolve, reject) => {
       db.run(
         `UPDATE threads 
-         SET content = ?, scheduled_time = ?, published_time = ?, status = ?
+         SET content = ?, tweet_ids = ?, scheduled_time = ?, published_time = ?, status = ?
          WHERE id = ?`,
         [
           JSON.stringify(updatedThread.content),
+          updatedThread.tweetIds ? JSON.stringify(updatedThread.tweetIds) : null,
           updatedThread.scheduledTime?.toISOString(),
           updatedThread.publishedTime?.toISOString(),
           updatedThread.status,
