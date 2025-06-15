@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { initializeDatabase } from '../config/database';
 import threadRoutes from './routes/threadRoutes';
 import sheetsRoutes from './routes/sheetsRoutes';
+import metricsRoutes from './routes/metricsRoutes';
 import { ThreadScheduler } from '../jobs/scheduler';
 import { SheetsSync } from '../jobs/sheetsSync';
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 // API routes
 app.use('/api/threads', threadRoutes);
 app.use('/api/sheets', sheetsRoutes);
+app.use('/api/metrics', metricsRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
