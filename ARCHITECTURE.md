@@ -213,13 +213,13 @@ GCP Load Balancer
 └──────────────────┘
 ```
 
-### 2. Logging & Metrics
+### 2. Simplified Logging & Monitoring
 ```
 Every Request
     │
     ▼
 ┌──────────────────┐
-│ Winston Logger   │ ← Structured JSON logs
+│ Winston Logger   │ ← Structured JSON logs + Correlation ID
 └──────────────────┘
     │
     ├─ Development ──┐
@@ -232,14 +232,20 @@ Every Request
     └─ Production ───┐
                      ▼
          ┌──────────────────┐
-         │ GCP Logging      │ ← Console output → GCP
-         │ (Stackdriver)    │
+         │ GCP Stackdriver  │ ← Console output → GCP Logging
+         │ Logging          │
          └──────────────────┘
                      │
                      ▼
          ┌──────────────────┐
-         │ Prometheus       │ ← /monitoring/metrics
-         │ Metrics          │
+         │ GCP Native       │ ← Automatic metrics collection
+         │ Monitoring       │   Memory, CPU, Requests, Errors
+         └──────────────────┘
+                     │
+                     ▼
+         ┌──────────────────┐
+         │ Simple Health    │ ← /monitoring/health
+         │ Endpoints        │   /monitoring/ping
          └──────────────────┘
 ```
 
@@ -249,19 +255,42 @@ Every Request
 ```typescript
 Thread {
   id: string
-  content: string[]
+  userId: string              // Links to specific user/twitter account
+  twitterHandle: string       // @username for this thread
+  content: string[]           // Array of tweet content
   status: 'draft' | 'scheduled' | 'published' | 'failed'
   scheduledTime?: Date
   publishedTime?: Date
-  tweetIds?: string[]
-  metrics?: ThreadMetrics
+  tweetIds?: string[]         // Twitter IDs after publishing
+  metrics?: ThreadMetrics     // Performance data
+  source: 'api' | 'sheets'    // Where thread originated
+  sheetRowId?: string         // Google Sheets row reference
 }
 
 User {
   id: string
-  username: string
+  username: string            // System username
+  email: string
+  twitterHandle: string       // @username on Twitter
+  twitterAppKeys: {           // Unique Twitter app per user
+    appKey: string
+    appSecret: string
+    accessToken: string
+    accessSecret: string
+  }
+  googleSheetsId?: string     // Google Sheets integration
   role: 'admin' | 'user'
   isActive: boolean
+}
+
+ThreadMetrics {
+  views: number
+  likes: number
+  retweets: number
+  replies: number
+  impressions: number
+  engagementRate: number
+  collectedAt: Date
 }
 
 UserSession {
@@ -270,6 +299,25 @@ UserSession {
   token: string
   expiresAt: Date
 }
+```
+
+## 📋 Google Sheets Integration
+
+### Required Column Structure
+```
+| A: Thread ID | B: Status | C: Scheduled Time | D: Tweet 1 | E: Tweet 2 | F: Tweet 3 | ... | Z: Published URLs | AA: Metrics |
+|--------------|-----------|-------------------|------------|------------|------------|-----|-------------------|-------------|
+| thread_001   | draft     | 2024-01-15 09:00 | First tweet| Second...  | Third...   | ... | twitter.com/...   | Views: 1.2K |
+| thread_002   | scheduled | 2024-01-15 14:00 | Another... | Tweet...   |            |     |                   |             |
+```
+
+### Multi-Account Sheets Structure
+```
+Sheet 1: @user_a_threads
+Sheet 2: @user_b_threads  
+Sheet 3: @user_c_threads
+
+Each sheet has identical column structure but separate Twitter credentials
 ```
 
 ## 🛡️ Security Flow
