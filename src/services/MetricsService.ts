@@ -180,7 +180,7 @@ export class MetricsService {
       }
 
       return [{
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0] || new Date().toDateString(),
         metrics
       }];
     } catch (error) {
