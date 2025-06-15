@@ -1,350 +1,404 @@
 # Twitter Thread Bot
 
-A comprehensive Twitter thread automation bot with analytics dashboard, Google Sheets integration, and scheduled posting capabilities.
+**Created by Vipul Gaur** - A comprehensive Twitter thread automation platform with multi-account support, analytics dashboard, Google Sheets integration, and production-ready deployment on Google Cloud Platform.
 
-## Features
+## 🎯 Overview
 
-- 🐦 **Twitter API Integration** - Post threads automatically
-- 📊 **Analytics Dashboard** - Track thread performance with Chart.js
-- 📋 **Google Sheets Integration** - Manage threads from spreadsheets with metrics
-- ⏰ **Scheduled Posting** - Cron-based thread scheduling
-- 📈 **Metrics Collection** - Automatic Twitter analytics collection
-- 💾 **SQLite Database** - Store threads and metrics
-- 🔒 **Authentication & Security** - JWT tokens, API keys, role-based access control
-- 🛡️ **Rate Limiting** - Configurable rate limits for different endpoints
+A production-ready Twitter thread automation bot designed for **multiple Twitter accounts**, with seamless Google Sheets integration, real-time analytics, and automated scheduling. Optimized for Google Cloud Platform free tier deployment.
 
-## Prerequisites
+## ✨ Key Features
 
-- Node.js 18.0.0 or higher
-- Twitter Developer Account with API keys
-- Google Cloud Project with Sheets API enabled (optional)
+### 🐦 **Multi-Account Twitter Management**
+- Support for unlimited Twitter accounts
+- Individual Twitter app credentials per account
+- Isolated thread management and analytics
+- Role-based access control
 
-## Setup
+### 📊 **Advanced Analytics Dashboard**
+- Real-time performance metrics
+- Engagement rate tracking
+- Historical trend analysis
+- Cross-account performance comparison (admin)
+- Interactive charts and visualizations
 
-### 1. Install Dependencies
+### 📋 **Google Sheets Integration**
+- Bidirectional sync with Google Sheets
+- Manage threads directly in spreadsheets
+- Automatic metrics updates
+- Multi-account sheet support
 
+### ⏰ **Intelligent Scheduling**
+- Cron-based automated publishing
+- Per-account scheduling isolation
+- Time zone support
+- Retry logic for failed posts
+
+### 🔒 **Enterprise Security**
+- JWT token authentication
+- API key management
+- Role-based permissions
+- Request correlation tracking
+- Rate limiting protection
+
+### ☁️ **Production Deployment Ready**
+- Google Cloud Platform optimized
+- Free tier friendly (F1 instance)
+- Auto-scaling configuration
+- Health check endpoints
+- Simplified monitoring
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18.0.0+
+- Twitter Developer Account(s) - **One per Twitter account you want to manage**
+- Google Cloud Project (for deployment)
+- Google Sheets API access (optional)
+
+### 1. Installation
 ```bash
+git clone https://github.com/yourusername/twitter-thread-bot
+cd twitter-thread-bot
 npm install
 ```
 
-### 2. Environment Configuration
-
-Copy the example environment file and configure your API keys:
-
+### 2. Environment Setup
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` with your actual credentials:
-
+Edit `.env` with your configuration:
 ```env
 # Server Configuration
-PORT=3000
 NODE_ENV=development
+PORT=3000
 
-# Twitter API Configuration
-TWITTER_API_KEY=your_actual_api_key
-TWITTER_API_SECRET=your_actual_api_secret
-TWITTER_ACCESS_TOKEN=your_actual_access_token
-TWITTER_ACCESS_TOKEN_SECRET=your_actual_access_token_secret
-TWITTER_BEARER_TOKEN=your_actual_bearer_token
+# Default Twitter Account (User 1)
+TWITTER_API_KEY=your_twitter_app_1_api_key
+TWITTER_API_SECRET=your_twitter_app_1_api_secret
+TWITTER_ACCESS_TOKEN=your_twitter_app_1_access_token
+TWITTER_ACCESS_TOKEN_SECRET=your_twitter_app_1_access_token_secret
 
-# Google Sheets API Configuration (Optional)
-GOOGLE_SHEETS_CLIENT_EMAIL=your_service_account_email@your-project.iam.gserviceaccount.com
-GOOGLE_SHEETS_PRIVATE_KEY=your_google_sheets_private_key
+# Google Sheets Integration (Optional)
+GOOGLE_SHEETS_CLIENT_EMAIL=your_service_account@project.iam.gserviceaccount.com
+GOOGLE_SHEETS_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n..."
 GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id
 
-# Authentication & Security Configuration
-JWT_SECRET=your-super-secret-jwt-key-change-in-production-please
-SESSION_SECRET=your-session-secret-key
-
-# Rate Limiting Configuration (Optional - defaults provided)
-GENERAL_RATE_LIMIT_WINDOW_MS=900000
-GENERAL_RATE_LIMIT_MAX=100
-AUTH_RATE_LIMIT_WINDOW_MS=900000
-AUTH_RATE_LIMIT_MAX=5
-API_RATE_LIMIT_WINDOW_MS=60000
-API_RATE_LIMIT_MAX=60
+# Security
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
 ```
 
-### 3. Database Setup
-
-The SQLite database will be created automatically when you first run the application.
-
-### 4. Authentication Setup
-
-The application uses JWT-based authentication with optional API key support. On first run, you'll need to create a user account.
-
-#### Creating Your First User Account
-
-Once the server is running, use the setup script to create your admin account:
-
+### 3. First Run Setup
 ```bash
-# Interactive setup script (recommended)
-node setup-auth.js
-```
+# Build the application
+npm run build
 
-Or create manually via API:
-
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "email": "admin@example.com",
-    "password": "your-secure-password-here"
-  }'
-```
-
-#### Authentication Methods
-
-The API supports two authentication methods:
-
-1. **JWT Tokens** (recommended for web applications)
-   - Login to get a JWT token
-   - Include in requests: `Authorization: Bearer <token>`
-
-2. **API Keys** (recommended for programmatic access)
-   - Create API keys with specific permissions
-   - Include in requests: `X-API-Key: <api-key>`
-
-#### Creating API Keys
-
-After logging in, create API keys for programmatic access:
-
-```bash
-# Login first to get a token
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "your-secure-password-here"
-  }'
-
-# Use the token to create an API key
-curl -X POST http://localhost:3000/api/auth/api-keys \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -d '{
-    "keyName": "My Bot Key",
-    "permissions": ["threads:read", "threads:write", "threads:publish", "metrics:read"]
-  }'
-```
-
-#### Permission System
-
-The application uses a granular permission system:
-
-- `threads:read` - View threads
-- `threads:write` - Create/edit threads  
-- `threads:delete` - Delete threads
-- `threads:publish` - Publish threads
-- `threads:schedule` - Schedule threads
-- `metrics:read` - View analytics
-- `metrics:collect` - Collect metrics
-- `sheets:read` - View Google Sheets data
-- `sheets:sync` - Sync with Google Sheets
-- `*` - All permissions (admin only)
-
-## Running the Application
-
-### Development Mode
-
-```bash
-# Start the main API server
+# Start the server
 npm run dev
 
-# Start the analytics dashboard (in another terminal)
+# Create your admin account (in another terminal)
+node setup-auth.js
+
+# Start the dashboard
 npm run dashboard
 ```
 
-### Production Mode
+Access your application:
+- **API**: http://localhost:3000
+- **Dashboard**: http://localhost:3001
 
+## 🏗️ Multi-Account Architecture
+
+### Account Structure
+Each Twitter account requires:
+1. **Separate Twitter Developer App** (Twitter requirement)
+2. **Unique user account** in the system
+3. **Individual credentials** stored securely
+4. **Optional Google Sheets** integration
+
+### Setup Multiple Accounts
 ```bash
-# Build the TypeScript code
-npm run build
+# 1. Create user accounts via API or dashboard
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "marketing_team",
+    "email": "marketing@company.com", 
+    "password": "secure_password",
+    "twitterHandle": "@company_marketing",
+    "twitterAppKeys": {
+      "appKey": "twitter_app_2_key",
+      "appSecret": "twitter_app_2_secret",
+      "accessToken": "twitter_app_2_access_token",
+      "accessSecret": "twitter_app_2_access_secret"
+    }
+  }'
 
-# Start the production server
-npm start
-
-# Build and start dashboard
-npm run build:dashboard
-npm run start:dashboard
+# 2. Each user gets isolated thread management
+# 3. Analytics are separated per account
+# 4. Scheduling works independently per account
 ```
 
-### Available Scripts
+## 📊 Google Sheets Integration
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run start` - Start production server
-- `npm run test` - Run tests
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
-- `npm run dashboard` - Start Next.js dashboard in development
-- `npm run build:dashboard` - Build dashboard for production
-- `npm run start:dashboard` - Start dashboard in production
+### Sheet Structure
+Create a Google Sheet with this exact column layout:
 
-### Testing Connections
+| A | B | C | D | E | F | ... | Y | Z | AA |
+|---|---|---|---|---|---|-----|---|---|---|
+| **ThreadID** | **Status** | **ScheduledTime** | **Tweet1** | **Tweet2** | **Tweet3** | ... | **PublishedURLs** | **Metrics** | **Notes** |
+| T001 | draft | 2024-01-15 9:00 AM | First tweet content... | Second tweet content... | Third tweet... | | | | Campaign info |
+| T002 | scheduled | 2024-01-15 2:00 PM | Product launch... | Feature highlights... | Call to action... | | | | Product launch |
 
-Use the provided test files to verify your setup:
+### Column Definitions
+- **ThreadID**: Unique identifier (auto-generated)
+- **Status**: `draft`, `scheduled`, `published`, `failed`
+- **ScheduledTime**: `YYYY-MM-DD HH:MM AM/PM` format
+- **Tweet1-TweetN**: Tweet content (280 chars max each)
+- **PublishedURLs**: Auto-populated after publishing
+- **Metrics**: Auto-updated with performance data
+- **Notes**: Your campaign notes
 
-```bash
-# Test Twitter API connection
-node test.js
-
-# Test bot functionality
-node bot.js
-
-# Test complete API functionality
-node test-api.js
-
-# Test Google Sheets integration
-node test-sheets.js
-
-# Test metrics collection system
-node test-metrics.js
-
-# Setup authentication (interactive)
-node setup-auth.js
+### Multi-Account Sheets
+**Option 1**: Separate sheets per account
+```
+├── "@company_marketing_threads" 
+├── "@product_updates_threads"
+└── "@customer_support_threads"
 ```
 
-## Usage
+**Option 2**: Single sheet with account column
+Add an **Account** column to specify which Twitter account to use.
 
-### API Endpoints
+## 🎛️ Dashboard Usage
 
-The server runs on `http://localhost:3000` by default. All API endpoints (except auth) require authentication.
+### User Dashboard
+- **My Threads**: View threads for your Twitter account only
+- **Create Thread**: Compose new threads with preview
+- **Schedule Management**: Set publish times, edit scheduled threads
+- **Analytics**: Performance metrics for your account
+- **Settings**: Manage your Twitter credentials and preferences
 
-#### Authentication Endpoints
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile (authenticated)
-- `POST /api/auth/api-keys` - Create API key (authenticated)
-- `GET /api/auth/api-keys` - List API keys (authenticated)
-- `DELETE /api/auth/api-keys/:id` - Revoke API key (authenticated)
-- `POST /api/auth/logout` - Logout (authenticated)
+### Admin Dashboard
+- **All Accounts**: System-wide thread management
+- **User Management**: Create/manage user accounts
+- **System Metrics**: Performance monitoring
+- **Cross-Account Analytics**: Compare performance across accounts
 
-#### Thread Management (requires authentication)
-- `GET /api/threads` - List all threads (requires `threads:read`)
-- `POST /api/threads` - Create new thread (requires `threads:write`)
-- `GET /api/threads/:id` - Get specific thread (requires `threads:read`)
-- `PUT /api/threads/:id` - Update thread (requires `threads:write`)
-- `DELETE /api/threads/:id` - Delete thread (requires `threads:delete`)
-- `POST /api/threads/:id/schedule` - Schedule thread (requires `threads:schedule`)
-- `POST /api/threads/:id/publish` - Publish thread immediately (requires `threads:publish`)
+## 📈 Performance Monitoring
 
-#### Analytics & Metrics (requires authentication)
-- `GET /api/metrics/summary` - Get analytics summary (requires `metrics:read`)
-- `GET /api/metrics/top-threads` - Get top performing threads (requires `metrics:read`)
-- `POST /api/metrics/collect` - Collect metrics for all threads (requires `metrics:collect`)
+### Automatic Metrics Collection
+- **Views**: Tweet impression count
+- **Engagement**: Likes, retweets, replies, shares
+- **Engagement Rate**: Calculated percentage
+- **Historical Tracking**: 30-day rolling metrics
+- **Trend Analysis**: Performance over time
 
-#### Google Sheets Integration (requires authentication)
-- `GET /api/sheets/validate` - Test Google Sheets connection (requires `sheets:read`)
-- `POST /api/sheets/sync-from-db` - Sync database to Google Sheets (requires `sheets:sync`)
-- `POST /api/sheets/sync-to-db` - Sync Google Sheets to database (requires `sheets:sync`)
+### Dashboard Analytics
+- Real-time charts and graphs
+- Top performing threads
+- Optimal posting times analysis
+- Content performance insights
+- Account growth tracking
 
-#### Public Endpoints
-- `GET /` - Health check and API information
-- `GET /health` - Server health status
+## 🚀 Production Deployment (Google Cloud Platform)
 
-### Dashboard
+### Free Tier Optimized
+This application is specifically optimized for GCP's free tier:
+- **F1 Instance**: 0.25 vCPU, 1GB RAM
+- **Auto-scaling**: 0-1 instances
+- **28 hours/day free**
+- **Minimal memory footprint**
 
-Access the analytics dashboard at `http://localhost:3001` to view:
-- Thread performance metrics
-- Engagement analytics
-- Scheduling interface
-- Historical data
+### One-Command Deployment
+```bash
+# One-time setup
+npm run gcp:setup
 
-### Scheduling Threads
+# Deploy to production
+npm run gcp:deploy
 
-The bot automatically checks for scheduled threads every minute and publishes them at the specified time.
+# Monitor logs
+npm run gcp:logs
 
-## Project Structure
+# Open your app
+npm run gcp:browse
+```
+
+### Production Configuration
+Your app will be available at: `https://your-project.appspot.com`
+
+**Health Endpoints**:
+- `/monitoring/health` - System health check
+- `/monitoring/ping` - Load balancer ping
+
+## 🔧 API Reference
+
+### Authentication
+All API endpoints require authentication via JWT token or API key.
+
+```bash
+# Login to get JWT token
+curl -X POST https://your-app.appspot.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
+
+# Use token in subsequent requests
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  https://your-app.appspot.com/api/threads
+```
+
+### Key Endpoints
+
+#### Thread Management
+- `GET /api/threads` - List your threads
+- `POST /api/threads` - Create new thread
+- `PUT /api/threads/:id` - Update thread
+- `POST /api/threads/:id/publish` - Publish immediately
+- `POST /api/threads/:id/schedule` - Schedule for later
+
+#### Analytics
+- `GET /api/metrics/summary` - Account performance summary
+- `GET /api/metrics/top-threads` - Best performing threads
+- `POST /api/metrics/collect` - Refresh metrics
+
+#### Google Sheets
+- `POST /api/sheets/sync` - Bidirectional sync
+- `GET /api/sheets/validate` - Test connection
+
+## 🛡️ Security Features
+
+### Data Protection
+- **Encryption**: All credentials encrypted at rest
+- **Isolation**: Complete data separation between accounts
+- **Access Control**: Role-based permissions
+- **Audit Logging**: All actions tracked with correlation IDs
+
+### Authentication Methods
+1. **JWT Tokens**: Web dashboard authentication
+2. **API Keys**: Programmatic access with specific permissions
+3. **Role-based Access**: User vs Admin capabilities
+
+## 📁 Project Structure
 
 ```
 twitter-thread-bot/
-├── src/                    # Source code
-│   ├── controllers/        # API route handlers (Auth, Thread, Metrics, Sheets)
-│   ├── services/          # Business logic (Twitter, Google Sheets, Auth)
-│   ├── types/             # TypeScript definitions
-│   ├── utils/             # Utility functions
-│   ├── middleware/        # Express middleware (auth, rate limiting)
-│   ├── routes/            # API route definitions
-│   ├── config/            # Configuration files (security, database)
-│   └── index.ts           # Main server file
-├── config/                # Configuration files
-│   └── database.ts        # Database setup
-├── jobs/                  # Scheduled tasks
-│   └── scheduler.ts       # Cron job scheduler
-├── dashboard/             # Next.js analytics dashboard
-│   ├── pages/            # Dashboard pages
-│   ├── components/       # React components
-│   └── styles/           # CSS styles
-├── database/             # SQLite database files
-├── dist/                 # Compiled JavaScript (generated)
-└── README.md             # This file
+├── src/                          # TypeScript source code
+│   ├── controllers/              # API route handlers
+│   ├── services/                 # Business logic
+│   ├── middleware/               # Authentication, logging, CORS
+│   ├── routes/                   # API route definitions
+│   ├── utils/                    # Utilities and helpers
+│   └── types/                    # TypeScript definitions
+├── dashboard/                    # Next.js analytics dashboard
+│   ├── pages/                    # Dashboard pages
+│   ├── components/               # React components
+│   └── styles/                   # Styling
+├── jobs/                         # Background tasks
+│   ├── scheduler.ts              # Thread publishing scheduler
+│   └── sheetsSync.ts             # Google Sheets sync
+├── config/                       # Configuration files
+├── database/                     # SQLite database files
+├── docs/                         # Documentation
+├── tests/                        # Test suites
+├── app.yaml                      # GCP deployment config
+├── ARCHITECTURE.md               # System architecture
+├── FUNCTIONAL_DATA_FLOW.md       # Complete user journey
+├── LOGGING_MONITORING.md         # Operations guide
+└── DEPLOYMENT.md                 # Deployment instructions
 ```
 
-## Environment Variables
+## 🔍 Monitoring & Troubleshooting
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `PORT` | Server port | No (default: 3000) |
-| `TWITTER_API_KEY` | Twitter API key | Yes |
-| `TWITTER_API_SECRET` | Twitter API secret | Yes |
-| `TWITTER_ACCESS_TOKEN` | Twitter access token | Yes |
-| `TWITTER_ACCESS_TOKEN_SECRET` | Twitter access token secret | Yes |
-| `TWITTER_BEARER_TOKEN` | Twitter bearer token | Yes |
-| `GOOGLE_SHEETS_CLIENT_EMAIL` | Google service account email | No |
-| `GOOGLE_SHEETS_PRIVATE_KEY` | Google service account private key | No |
-| `GOOGLE_SHEETS_SPREADSHEET_ID` | Google Sheets spreadsheet ID | No |
-| `JWT_SECRET` | Secret key for JWT token signing | Yes |
-| `SESSION_SECRET` | Secret key for session management | No |
-| `GENERAL_RATE_LIMIT_WINDOW_MS` | General rate limit window (milliseconds) | No |
-| `GENERAL_RATE_LIMIT_MAX` | General rate limit max requests | No |
-| `AUTH_RATE_LIMIT_WINDOW_MS` | Auth rate limit window (milliseconds) | No |
-| `AUTH_RATE_LIMIT_MAX` | Auth rate limit max requests | No |
-| `API_RATE_LIMIT_WINDOW_MS` | API rate limit window (milliseconds) | No |
-| `API_RATE_LIMIT_MAX` | API rate limit max requests | No |
+### Built-in Logging
+- **Development**: File-based logging with colors
+- **Production**: GCP Stackdriver integration
+- **Correlation IDs**: Track requests across services
+- **Structured Logs**: JSON format for easy parsing
 
-## Troubleshooting
+### Health Monitoring
+```bash
+# Check application health
+curl https://your-app.appspot.com/monitoring/health
 
-### Common Issues
+# View real-time logs
+npm run gcp:logs
 
-1. **Twitter API Connection Fails**
-   - Verify your API keys are correct
-   - Ensure your Twitter app has read/write permissions
-   - Check that your access tokens are valid
+# Monitor performance in GCP Console
+# → Monitoring → Dashboards → App Engine
+```
 
-2. **Database Errors**
-   - Ensure the `database/` directory exists
-   - Check file permissions for SQLite database
+### Common Troubleshooting
+1. **Twitter API Issues**: Check API keys and permissions
+2. **Sheets Sync Problems**: Verify service account permissions
+3. **Authentication Errors**: Ensure JWT_SECRET is set
+4. **Memory Issues**: Monitor GCP metrics dashboard
 
-3. **Dashboard Not Loading**
-   - Make sure you're running `npm run dashboard` in a separate terminal
-   - Check that port 3001 is available
+## 📚 Documentation
 
-4. **Authentication Issues**
-   - Ensure `JWT_SECRET` is set in your `.env` file
-   - Check that the user account exists and credentials are correct
-   - Verify API key permissions match the required endpoint permissions
+- **[Architecture Guide](ARCHITECTURE.md)**: System design and data flow
+- **[Functional Data Flow](FUNCTIONAL_DATA_FLOW.md)**: Complete user journey
+- **[Logging & Monitoring](LOGGING_MONITORING.md)**: Operations guide
+- **[Deployment Guide](DEPLOYMENT.md)**: GCP deployment instructions
+- **[Google Sheets Setup](docs/GOOGLE_SHEETS_SETUP.md)**: Sheets integration
 
-5. **Rate Limiting**
-   - If you receive "Too many requests" errors, wait for the rate limit window to reset
-   - Adjust rate limiting settings in `.env` if needed
-   - Use API keys for higher rate limits than general endpoints
-
-### Logs
-
-Check the console output for detailed error messages and debugging information.
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-## License
+### Development Setup
+```bash
+# Install dependencies
+npm install
 
-MIT License - see LICENSE file for details.
+# Run tests
+npm test
+
+# Type checking
+npm run typecheck
+
+# Linting
+npm run lint
+
+# Build
+npm run build
+```
+
+## 📄 License
+
+MIT License with Attribution Requirement
+
+Copyright (c) 2024 **Vipul Gaur**
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software for personal use, education, or open source projects.
+
+**Commercial Use**: Any commercial use, distribution, or derivative work must include prominent attribution to "Vipul Gaur" as the original creator.
+
+See [LICENSE](LICENSE) file for complete terms.
+
+## 🙏 Acknowledgments
+
+- Twitter API v2 for thread publishing capabilities
+- Google Sheets API for seamless integration
+- Next.js and React for the dashboard interface
+- Google Cloud Platform for hosting infrastructure
+- The open source community for amazing tools and libraries
+
+---
+
+**Created with ❤️ by [Vipul Gaur](https://github.com/vipulgaur)**
+
+For questions, support, or custom implementations, please open an issue or reach out directly.
+
+## 🔗 Quick Links
+
+- **[Live Demo](https://your-demo-url.appspot.com)** (if available)
+- **[Documentation](docs/)** - Detailed guides
+- **[Issue Tracker](https://github.com/yourusername/twitter-thread-bot/issues)** - Report bugs
+- **[Discussions](https://github.com/yourusername/twitter-thread-bot/discussions)** - Community support
+
+**⭐ Star this repo if it helped you automate your Twitter presence!**
